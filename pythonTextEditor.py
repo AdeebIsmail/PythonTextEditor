@@ -123,7 +123,7 @@ def saveFile():
 
 
 def about():
-    webbrowser.open("https://github.com/AdeebIsmail")
+    webbrowser.open("https://github.com/AdeebIsmail/PythonTextEditor")
 
 
 def on_close():

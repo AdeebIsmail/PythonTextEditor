@@ -8,7 +8,7 @@ a = Analysis(
     ['pythonTextEditor.py'],
     pathex=[],
     binaries=[],
-    datas=[('myIcon.ico', '.')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -41,5 +41,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['myIcon.ico'],
 )
