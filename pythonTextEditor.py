@@ -94,7 +94,7 @@ def saveFile():
         while True:
             answer = ""
             answer = simpledialog.askstring(
-                "Input", "Enter a valid filename", parent=window
+                "Input", "Enter a valid filename", parent=window, initialvalue=".txt"
             )
             if answer != "":
                 try:
