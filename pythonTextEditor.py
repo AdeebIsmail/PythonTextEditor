@@ -72,15 +72,14 @@ def openFile():
     currentSave = words
 
 
-def saveFile():
+def saveFile(self):
     global filename
     global currentSave
-
     newpath = userpaths.get_my_documents() + "\\PythonTextEditor\\"
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
-    if filename != "":
+    if filename != "" and filename is not None:
         text = textWidget.get("1.0", "end-1c")
         words = ""
         for i in text:
@@ -96,15 +95,16 @@ def saveFile():
             answer = simpledialog.askstring(
                 "Input", "Enter a valid filename", parent=window, initialvalue=".txt"
             )
-            if answer != "":
+            if answer != ".txt" and answer is not None:
                 try:
-                    filename = answer + ".txt"
+                    print(answer)
+                    filename = answer
                     currentSave = textWidget.get("1.0", "end-1c")
                 except:
                     pass
                 break
             else:
-                print("Dawg what")
+                break
 
         try:
             text = textWidget.get("1.0", "end-1c")
@@ -127,12 +127,15 @@ def about():
 
 
 def on_close():
+    print(currentSave)
+    print(textWidget.get("1.0", "end-1c"))
     if currentSave != textWidget.get("1.0", "end-1c"):
         res = messagebox.askquestion(
             "Warning",
             "Are you sure you want to quit? Anything not saved will be lost.",
             default="no",
         )
+
         if res == "yes":
             window.destroy()
         else:
@@ -167,4 +170,5 @@ window.geometry("500x500")
 window.config(menu=menubar)
 window.protocol("WM_DELETE_WINDOW", on_close)
 window.iconbitmap("myIcon.ico")
+window.bind("<Control-s>", saveFile)
 window.mainloop()
