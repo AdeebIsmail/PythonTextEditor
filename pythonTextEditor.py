@@ -14,7 +14,7 @@ filename = ""
 currentSave = ""
 
 
-def dark_title_bar(window):
+def darkTitleBar(window):
     window.update()
     DWMWA_USE_IMMERSIVE_DARK_MODE = 20
     set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
@@ -56,20 +56,21 @@ def newFile():
 
 
 def openFile():
-    newFile()
     global filename
     global currentSave
     filename = fd.askopenfilename()
     words = ""
-    with open(filename) as f:
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            words += line
-    window.title("Text Editor " + "~ " + filename)
-    textWidget.insert(INSERT, words)
-    currentSave = words
+    if filename != "":
+        newFile()
+        with open(filename) as f:
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                words += line
+            window.title("Text Editor " + "~ " + filename)
+            textWidget.insert(INSERT, words)
+            currentSave = words
 
 
 def saveFile(self):
@@ -97,7 +98,6 @@ def saveFile(self):
             )
             if answer != ".txt" and answer is not None:
                 try:
-                    print(answer)
                     filename = answer
                     currentSave = textWidget.get("1.0", "end-1c")
                 except:
@@ -126,9 +126,7 @@ def about():
     webbrowser.open("https://github.com/AdeebIsmail/PythonTextEditor")
 
 
-def on_close():
-    print(currentSave)
-    print(textWidget.get("1.0", "end-1c"))
+def onClose():
     if currentSave != textWidget.get("1.0", "end-1c"):
         res = messagebox.askquestion(
             "Warning",
@@ -144,13 +142,50 @@ def on_close():
         window.destroy()
 
 
+def createNewFile():
+    global filename
+    global currentSave
+    newpath = userpaths.get_my_documents() + "\\PythonTextEditor\\"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    while True:
+        answer = ""
+        answer = simpledialog.askstring(
+            "Input", "Enter a valid filename", parent=window, initialvalue=".txt"
+        )
+        if answer != ".txt" and answer is not None:
+            try:
+                filename = answer
+                currentSave = textWidget.get("1.0", "end-1c")
+            except:
+                pass
+            break
+        else:
+            break
+    try:
+        text = textWidget.get("1.0", "end-1c")
+        words = ""
+        for i in text:
+            words += i
+        file = open(
+            userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename, "w"
+        )
+        filename = userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename
+        file.write(words)
+        window.title("Text Editor " + "~ " + filename)
+        file.close()
+    except:
+        pass
+
+
 menubar = Menu(window)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="New", command=newFile)
+filemenu.add_command(label="New File", command=createNewFile)
+filemenu.add_command(label="Clear", command=newFile)
 filemenu.add_command(label="Open", command=openFile)
-filemenu.add_command(label="Save", command=saveFile)
+filemenu.add_command(label="Save", command=lambda: saveFile(None))
 filemenu.add_separator()
-filemenu.add_command(label="Exit", command=on_close)
+filemenu.add_command(label="Exit", command=onClose)
 menubar.add_cascade(label="File", menu=filemenu)
 
 helpmenu = Menu(menubar, tearoff=0)
@@ -164,11 +199,11 @@ menubar.add_cascade(label="Tools", menu=toolmenu)
 
 textWidget = Text(window)
 textWidget.pack(expand=True, fill="both")
-dark_title_bar(window)
+darkTitleBar(window)
 window.title("Text Editor")
 window.geometry("500x500")
 window.config(menu=menubar)
-window.protocol("WM_DELETE_WINDOW", on_close)
+window.protocol("WM_DELETE_WINDOW", onClose)
 window.iconbitmap("myIcon.ico")
 window.bind("<Control-s>", saveFile)
 window.mainloop()
