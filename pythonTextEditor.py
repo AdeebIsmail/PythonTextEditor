@@ -4715,7 +4715,7 @@ iconfile = open(tempFile, "wb")
 iconfile.write(icondata)
 iconfile.close()
 window = Tk()
-window.wm_iconbitmap(tempFile)
+window.wm_iconbitmap(default=tempFile)
 ## Delete the tempfile
 os.remove(tempFile)
 
@@ -4723,6 +4723,8 @@ window.geometry("500x500")
 
 filename = ""
 currentSave = ""
+fontType = "lucida"
+fontSize = 10
 
 
 def darkTitleBar(window):
@@ -4866,26 +4868,98 @@ def createNewFile():
         )
         if answer != ".txt" and answer is not None:
             try:
-                filename = answer
-                currentSave = textWidget.get("1.0", "end-1c")
+                filename = (
+                    userpaths.get_my_documents() + "\\PythonTextEditor\\" + answer
+                )
+                # currentSave = textWidget.get("1.0", "end-1c")
             except:
                 pass
             break
         else:
             break
     try:
-        newFile()
-        # text = textWidget.get("1.0", "end-1c")
-        # words = ""
-        # for i in text:
-        #     words += i
-        # file = open(
-        #     userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename, "w"
-        # )
-        # filename = userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename
-        # file.write(words)
-        window.title("Text Editor " + "~ " + filename)
+        if filename == "":
+            pass
+        else:
+            window.title("Text Editor " + "~" + filename)
+            text = textWidget.get("1.0", "end-1c")
+            words = ""
+            for i in text:
+                words += i
+            file = open(
+                userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename, "w"
+            )
+            filename = userpaths.get_my_documents() + "\\PythonTextEditor\\" + filename
+            file.write(words)
     except:
+        pass
+
+
+def submit(font_entry, font_size_entry):
+    global fontType
+    global fontSize
+
+    fontType = font_entry.get()
+    fontSize = font_size_entry.get()
+    fontInfo = (fontType, fontSize)
+    textWidget.configure(font=fontInfo)
+
+
+def font(window):
+    global fontType
+    global fontSize
+    # global fontSize
+    # answer = simpledialog.askinteger(
+    #     "Font Size", "Enter a font size", parent=window, initialvalue=fontSize
+    # )
+    # fontSize = answer
+    # fontInfo = (fontType, fontSize)
+    # textWidget.configure(font=fontInfo)
+    top = Toplevel(window)
+    top.transient(window)
+    top.geometry("150x150")
+    font_label = Label(
+        top,
+        text="Font",
+        font=(
+            "calibre",
+            10,
+        ),
+    )
+    font_entry = Entry(top, textvariable=fontType, font=("calibre", 10, "normal"))
+    font_entry.insert(END, fontType)
+    fontType = font_entry.get()
+    font_size_label = Label(
+        top,
+        text="Font Size",
+        font=(
+            "calibre",
+            10,
+        ),
+    )
+    var = StringVar(top)
+    var.set(fontSize)
+    font_size_entry = Spinbox(
+        top,
+        from_=0,
+        to=100,
+        textvariable=var,
+    )
+    sub_btn = Button(
+        top, text="Submit", command=lambda: submit(font_entry, font_size_entry)
+    )
+    font_label.pack()
+    font_entry.pack()
+    font_size_label.pack()
+    font_size_entry.pack()
+    sub_btn.pack()
+    top.mainloop()
+
+
+def textChange(e):
+    if (currentSave != textWidget.get("1.0", "end-1c")) and filename != "":
+        window.title("Text Editor " + "~ * " + filename)
+    else:
         pass
 
 
@@ -4906,9 +4980,13 @@ menubar.add_cascade(label="Help", menu=helpmenu)
 toolmenu = Menu(menubar, tearoff=0)
 toolmenu.add_command(label="Word Count", command=wordCount)
 toolmenu.add_command(label="Character Count", command=characterCount)
+toolmenu.add_command(label="Font", command=lambda: font(window))
 menubar.add_cascade(label="Tools", menu=toolmenu)
 
 textWidget = Text(window)
+# Font_tuple = ("Comic Sans MS", 20, "bold")
+fontInfo = (fontType, fontSize)
+textWidget.configure(font=fontInfo)
 textWidget.pack(expand=True, fill="both")
 if os.name == "nt":
     darkTitleBar(window)
@@ -4917,4 +4995,5 @@ window.geometry("500x500")
 window.config(menu=menubar)
 window.protocol("WM_DELETE_WINDOW", onClose)
 window.bind("<Control-s>", saveFile)
+window.bind("<Key>", textChange)
 window.mainloop()
